@@ -5,7 +5,8 @@ var schema = mongoose.Schema;
 
 var routeSchema = schema({
     fecha: String,
-    user: {type: Schema.ObjectId, ref : 'User'}
+    points: [{ type : schema.ObjectId, ref: 'Point' }],
+    user: {type: schema.ObjectId, ref : 'User'}
 });
 
 module.exports = mongoose.model('Route', routeSchema);

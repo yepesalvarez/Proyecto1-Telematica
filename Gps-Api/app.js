@@ -6,6 +6,7 @@ var app = express();
 
 //Cargar rutas
 var userRoutes = require('./routes/user');
+var routeRoutes = require('./routes/route');
 
 //Middleware que se ejecuta antes de ejecutar el codigo y recibe los parametros y los transforma en este caso en formato json
 app.use(bodyParser.json());
@@ -23,6 +24,7 @@ app.use(function(req, res, next) {
 
 //Rutas base
 app.use('/api', userRoutes);
+app.use('/api', routeRoutes);
 
 //Para poder utilizar este archivo dentro de otros
 module.exports = app;
