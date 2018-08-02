@@ -1,14 +1,14 @@
 {
   "name": "Gps-Api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Aplicacion académica para el registro de rutas con puntos gps por diferentes usuarios",
+  "author": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "nodemon index.js -e js,pug"
   },
   "keywords": [],
-  "author": "",
   "license": "ISC",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
@@ -17,7 +17,10 @@
     "jwt-simple": "^0.5.1",
     "moment": "^2.22.2",
     "mongoose": "^5.2.4",
-    "mongoose-pagination": "^1.0.0"
+    "mongoose-pagination": "^1.0.0",
+    "path": "^0.12.7",
+    "pug": "^2.0.3",
+    "pug-bootstrap": "0.0.15"
   },
   "devDependencies": {
     "nodemon": "^1.18.3"

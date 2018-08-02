@@ -44,6 +44,15 @@ function saveUser(req, res){
         }else{
             if(!userFound){  
                 user.username = params.username;
+                /*
+                    hash(data, salt, progress, cb)
+                    data - [REQUIRED] - the data to be encrypted.
+                    salt - [REQUIRED] - the salt to be used to hash the password.
+                    progress - a callback to be called during the hash calculation to signify progress
+                    callback - [REQUIRED] - a callback to be fired once the data has been encrypted.
+                        error - First parameter to the callback detailing any errors.
+                        result - Second parameter to the callback providing the encrypted form.
+                */
                 bcrypt.hash(params.password, null, null, function (err, hash){
                     user.password = hash;
                     user.save(function(err, userStored){
@@ -66,29 +75,34 @@ function saveUser(req, res){
 function loginUser(req, res){
     var params = req.body;
 
+    console.log(params);
+
     if(!params.username || !params.password){
-        res.status(400).send({message: 'ambos campos (username y password) son obligatorios de diligenciarse'})
+        //res.status(400)
+        res.render('index', {message: 'ambos campos (username y password) son obligatorios de diligenciarse'})
+        //return;
     }else{
         User.findOne({username : params.username}, function (err, user){
             if(err){
-                res.status(500).send({message:'Se ha producido un error al intentar procesar la solicitud'});
+                //res.status(500)
+                res.render('index', {message:'Se ha producido un error al intentar procesar la solicitud'});
+                //return;
             }else{
                 if(!user){
-                    res.status(404).send({message: 'usuario no existe en el sistema'});
+                    //res.status(404)
+                    res.render('index', {message: 'usuario no existe en el sistema'});
+                    //return;
                 }else{
                     bcrypt.compare(params.password, user.password, function(err, check){
                         if(check){
-                            //Se retornan datos de usuario
-                            if(params.gethash){
-                                //devolver token jwt
-                                res.status(200).send({
-                                    token: jwt.createToken(user)
-                                })
-                            }else{
-                                res.status(200).send({user});
-                            }
+                            //devolver token jwt
+                             //res.status(200)
+                             res.render('index', {token: jwt.createToken(user)});
+                            //return;
                         }else{
-                            res.status(400).send({message: 'contraseña incorrecta'});
+                            //res.status(400)
+                            res.render('index', {message: 'contraseña incorrecta'});
+                            //return;
                         }
                     });
                 }

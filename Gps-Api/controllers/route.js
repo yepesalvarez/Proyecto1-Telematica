@@ -2,16 +2,12 @@
 
 var User = require ('../models/user');
 var Route = require ('../models/route');
-var Point = require ('../models/point');
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 
 function getRouteById(req, res){
     var routeId = req.params.id;
-    Route.findById(routeId).populate({path : 'user'}).populate({
-        path : 'points',
-        model : 'Point'
-    }).exec(function(err, route){
+    Route.findById(routeId).populate({path : 'user'}).exec(function(err, route){
         if(err)
             res.status(500).send({message: err});
         if(!route)
@@ -49,7 +45,8 @@ function saveRoute(req, res){
 
 function updateRoute(req, res){
     var routeId = req.params.id;
-    var update = req.body;
+
+    var update = req.body.route;
 
     Route.findByIdAndUpdate(routeId, update, function (err, routeUpdated){
         if(err){
