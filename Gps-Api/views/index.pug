@@ -1,10 +1,10 @@
 extends layout
-   
+
 block content
   .main.container
     .row
       .col-md-6.col-md-offset-3
-        h1.display-4.m-b-2 Ingreso al sistema
+        h1.display-4.m-b-2 Ingreso al sistema Gps
           hr
           // login form
         form#login(method='POST' action='/api/login')
@@ -19,5 +19,6 @@ block content
         form#goRegister(method='GET' action='/register')
           button.btn.btn-secundary(type='submit') Registrarse 
           div.form-group
-            h4.display-4.m-b-2 #{message}
-            p(hidden) #{token}
+            br
+            h6 #{message}
+            

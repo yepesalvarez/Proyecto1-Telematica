@@ -2,10 +2,10 @@ doctype html
 html
   head
     title GPS APP
-    link(rel='stylesheet' href='bower_components/bootstrap/dist/css/bootstrap.css')
+    block styles
+      link(rel='stylesheet', type='text/css', href='/bower_components/bootstrap/dist/css/bootstrap.css' ) 
     block scripts
-      script(src='bower_components/bootstrap/dist/js/bootstrap.js')
-      script(src='bower_components/jquery/dist/jquery.js')
+      script(src='/bower_components/bootstrap/dist/js/bootstrap.js')
   body  
     block content
     br

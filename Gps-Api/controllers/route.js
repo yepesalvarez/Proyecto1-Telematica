@@ -18,6 +18,21 @@ function getRouteById(req, res){
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 
+function getRoutesByUser(user){
+    Route.find({user:user}, function(err,routes){
+        if(err){
+            console.log(err);
+            return err;
+        }else{
+            console.log(routes);
+            return routes;
+        }
+    });
+    return [];
+}
+
+/*-----------------------------------------------------------------------------------------------------------------*/
+
 function saveRoute(req, res){
     var route = new Route();
     var params = req.body;
@@ -66,5 +81,6 @@ function updateRoute(req, res){
 module.exports = {
     getRouteById,
     saveRoute,
-    updateRoute
+    updateRoute, 
+    getRoutesByUser
 };

@@ -1,6 +1,8 @@
 'use strict'
 
 var User = require ('../models/user');
+var Route = require ('../models/route')
+//var Route = require ('../controllers/route')
 var bcrypt = require ('bcrypt-nodejs') ;
 var jwt = require ('../services/jwt');
 
@@ -36,11 +38,11 @@ function saveUser(req, res){
     var params = req.body;
 
     if(!params.username || !params.password){
-        res.status(400).send({message: 'ambos campos (username y password) son obligatorios de diligenciarse'})
+        res.status(400).render('register', {message: 'ambos campos (username y password) son obligatorios de diligenciarse'})
     }else{
         User.findOne({username : params.username}, function (err, userFound){
         if(err){
-            res.status(500).send({message:'Se ha producido un error al intentar procesar la solicitud'});
+            res.status(500).render('register', {message:'Se ha producido un error al intentar procesar la solicitud'});
         }else{
             if(!userFound){  
                 user.username = params.username;
@@ -57,14 +59,14 @@ function saveUser(req, res){
                     user.password = hash;
                     user.save(function(err, userStored){
                         if(err){
-                            res.status(500).send({message: err});
+                            res.status(500).render('register', {message: err});
                         }else{
-                            res.status(200).send({user : userStored});
+                            res.status(200).render('index', {message : 'Registro exitoso! Ya puedes ingresar al sistema'});
                         }
                     });
                 });  
             }else{
-                res.status(409).send({message:'El usuario que intenta crear ya existe en el sistema'});
+                res.status(409).render('register', {message:'El usuario que intenta crear ya existe en el sistema'});
             }
         }});
     }
@@ -75,34 +77,27 @@ function saveUser(req, res){
 function loginUser(req, res){
     var params = req.body;
 
-    console.log(params);
-
     if(!params.username || !params.password){
-        //res.status(400)
-        res.render('index', {message: 'ambos campos (username y password) son obligatorios de diligenciarse'})
-        //return;
+        res.status(400).render('index', {message: 'ambos campos (username y password) son obligatorios de diligenciarse'});
     }else{
         User.findOne({username : params.username}, function (err, user){
             if(err){
-                //res.status(500)
-                res.render('index', {message:'Se ha producido un error al intentar procesar la solicitud'});
-                //return;
+                res.status(500).render('index', {message:'Se ha producido un error al intentar procesar la solicitud ' + err});
             }else{
                 if(!user){
-                    //res.status(404)
-                    res.render('index', {message: 'usuario no existe en el sistema'});
-                    //return;
+                    res.status(404).render('index', {message: 'usuario no existe en el sistema'});
                 }else{
                     bcrypt.compare(params.password, user.password, function(err, check){
                         if(check){
-                            //devolver token jwt
-                             //res.status(200)
-                             res.render('index', {token: jwt.createToken(user)});
-                            //return;
+                            Route.find({user:user}, function(err, routesFound){
+                                if(err){
+                                    res.status(500).render('index', {message : 'se ha producido un error al intentar procesar la solicitud ' + err});        
+                                }else{
+                                    res.status(200).render('map', {token: jwt.createToken(user), routes : routesFound});
+                                }
+                            });
                         }else{
-                            //res.status(400)
-                            res.render('index', {message: 'contraseña incorrecta'});
-                            //return;
+                            res.status(400).render('index', {message: 'contraseña incorrecta'});
                         }
                     });
                 }
