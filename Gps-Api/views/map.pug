@@ -1,0 +1,38 @@
+extends layout
+
+block content
+      .main.container
+        .row
+          .col-md-6.col-md-offset-3
+            h1.display-4.m-b-2 Rutas Gps
+              hr
+            table.table.table-borderless
+                thead
+                    tr
+                    th(scope='col') Mapa
+                    th(scope='col') Opciones
+                tbody
+                    tr
+                      td(rowspan='10') 
+                        div#map(style='width:400px;height:400px')
+                      td(rowspan='3')
+                        div.btn-group-vertical
+                          button.btn.btn-primary Iniciar Ruta
+                          button.btn.btn-secundary Simular Avance
+                          button.btn.btn-success Finalizar Ruta
+                    tr
+                    tr
+                    tr
+                    tr 
+                      td
+                        button.btn.btn-info Rutas guardadas:
+                          span.badge 1
+                        ul.list-group
+                          for route in routes
+                            li.list-group-item= route.id
+                      tr
+                    td 
+                      button.btn.btn-dark Salir
+            br
+            h6 #{message}
+            p#token(hidden) #{token}

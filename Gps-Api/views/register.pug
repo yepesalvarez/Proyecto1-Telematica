@@ -1,0 +1,22 @@
+extends layout
+
+block content
+      .main.container
+        .row
+          .col-md-6.col-md-offset-3
+            h1.display-4.m-b-2 Registro al sistema Gps
+              hr
+            // register form
+            form#signupForm(method='POST' action='/api/register')
+              div.form-group
+                label(for='email') correo electrónico:
+                input#email.form-control(type='email', placeholder='username@email.com' name='username')
+              div.form-group
+                label(for='password') Contraseña:
+                input#password.form-control(type='password' name='password')
+              // div.form-group
+                label(for='password_confirm') Confirmar Contraseña:
+                input#password_confirm.form-control(type='password' name='password_confirm')
+              button.btn.btn-primary(type='submit') Registrarme
+            br
+            h6 #{message}
