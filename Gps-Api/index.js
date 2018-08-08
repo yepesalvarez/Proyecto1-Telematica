@@ -2,7 +2,7 @@
 
 var mongoose = require('mongoose');
 var app = require('./app');
-var port = process.env.PORT || 8080;
+var port = process.env.PORT || 3000;
 
 //Para eliminar el aviso de mongoose que devuelve por la consola
 mongoose.Promise = global.Promise;
