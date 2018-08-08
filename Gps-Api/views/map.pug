@@ -1,42 +1,90 @@
-extends layout
-
-block content
-    .main.container
-      .row
-        .col-md-6.col-md-offset-3
-          h1.display-4.m-b-2 Rutas Gps
-            hr
-          table.table.table-borderless
-              thead
-                  tr
-                  th(scope='col') Mapa
-                  th(scope='col') Opciones
-              tbody
-                  tr
-                    td(rowspan='10') 
-                      div#map(style='width:400px;height:400px')
-                      
-                    td(rowspan='3')
-                      div.btn-group-vertical
-                        button#iniciar.btn.btn-primary Iniciar Ruta
-                        button#avanzar.btn.btn-secundary Simular Avance
-                        button#finalizar.btn.btn-success Finalizar Ruta
-                  tr
-                  tr
-                  tr
-                  tr 
-                    td
-                      button.btn.btn-info Rutas guardadas:
-                        span.badge 1
-                      ul.list-group
-                        for route in routes
-                          li.list-group-item= route.id
-                          button.btn.btn-success(type='button' onclick='calculateAndDisplayRoute(' + route.points + ')') Ver
-                          button(onclick='initMap()') mapa
-                    tr
-                  td 
-                    button.btn.btn-dark(onclick='saludar()') Salir
-          br
-          h6 #{message}
-          p#token(hidden) #{token}
-  
+doctype html
+html
+  head
+    title GPS APP
+    link(rel='stylesheet', type='text/css', href='/bower_components/bootstrap/dist/css/bootstrap.css' ) 
+    style.
+      #map {
+      width:800px;
+      height:400px
+      }
+    script(src='/bower_components/bootstrap/dist/js/bootstrap.js')
+    meta(name='viewport', content='initial-scale=1.0, user-scalable=no')
+    meta(charset='utf-8')
+  body
+    h1.display-4.m-b-2 Rutas Gps
+    hr
+    table.table.table-borderless
+      thead
+        tr
+          th(scope='col') Mapa
+          th(scope='col') Opciones
+      tbody
+        tr
+          td
+            div#map
+            
+          td
+            div.btn-group-vertical
+              button#iniciar.btn.btn-primary Iniciar Ruta
+              button#avanzar.btn.btn-secundary Simular Avance
+              button#finalizar.btn.btn-success Finalizar Ruta
+              button.btn.btn-info Rutas guardadas:
+                span.badge= routes.length
+            ul.list-group
+              for route in routes
+                li.list-group-item= route.id
+                  select#waypoints(multiple='')
+                    for point in route.points
+                      option= [point.lat, point.lon]
+                  button.btn.btn-success(onclick='calculateAndDisplayRoute()') Ver
+            button.btn.btn-dark(onclick='saludar()') Salir
+    br
+    h6 #{message}
+    p#token(hidden) #{token}
+    script.
+      function initMap() {
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 6,
+          center: {lat: 6.248123, lng: -75.59191}
+      });
+      directionsDisplay.setMap(map);
+      }
+      function calculateAndDisplayRoute() {
+        var directionsService = new google.maps.DirectionsService;
+        var directionsDisplay = new google.maps.DirectionsRenderer;
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 6,
+          center: {lat: 6.248123, lng: -75.59191}
+      });
+      directionsDisplay.setMap(map);
+        var waypts = [];
+        var checkboxArray = document.getElementById('waypoints');
+        for (var i = 0; i < checkboxArray.length; i++) {
+          alert(checkboxArray[i].value);
+            waypts.push({
+              location: new google.maps.LatLng(checkboxArray[i].value),
+              stopover: true
+            });
+        }
+        directionsService.route({
+          origin: new google.maps.LatLng(checkboxArray[0].value),
+          destination: new google.maps.LatLng(checkboxArray[checkboxArray.length - 1].value),
+          waypoints: waypts,
+          optimizeWaypoints: true,
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+            if (status === 'OK') {
+              directionsDisplay.setDirections(response);
+              var route = response.routes[0];
+            } else {
+              window.alert('Directions request failed due to ' + status);
+            }
+           });
+      }
+      function saludar(){
+        alert('hola');
+      }
+    script(async='', defer='', src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBmdhVJcwT22Ew26tMfpHIQTO1RJ2GjduE&callback=initMap')
