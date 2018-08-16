@@ -20,9 +20,9 @@ html
             #map(style='width: 800px; height: 400px;')
           td
             div.btn-group-vertical
-              button#iniciar.btn.btn-primary Iniciar Ruta
+              button#iniciar.btn.btn-primary(onclick="updateGps('true')") Iniciar Ruta
               button#avanzar.btn.btn-secundary Simular Avance
-              button#finalizar.btn.btn-success Finalizar Ruta
+              button#finalizar.btn.btn-success(onclick="updateGps('false')") Finalizar Ruta
         tr
           td      
             div.btn-group-vertical  
@@ -93,5 +93,32 @@ html
         clearMarkers();
         markers = [];
       }
+      //---------------------------------------------------------------------------
+      function updateGps(option){
+        var time;
+        if(option == 'true'){
+          time = setInterval(function(){
+                    getPosition();
+                  }, 1000);  
+        }else{
+          debugger;
+          clearInterval(time);
+          //false envía la ruta actualizada a la db
+        }
+      }
+      
+      function getPosition(){
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(showPosition);
+        } else { 
+          console.log("Geolocation is not supported by this browser.");
+        }
+      }
+
+      function showPosition(position) {
+        console.log("Lat: " + position.coords.latitude + "lng: " + position.coords.longitude);
+      }
+
+
 
 
