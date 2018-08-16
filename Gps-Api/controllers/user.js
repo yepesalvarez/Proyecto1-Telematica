@@ -93,7 +93,7 @@ function loginUser(req, res){
                                 if(err){
                                     res.status(500).render('index', {message : 'se ha producido un error al intentar procesar la solicitud ' + err});        
                                 }else{
-                                    res.status(200).render('map', {token: jwt.createToken(user), routes : routesFound});
+                                    res.status(200).render('map', {token: jwt.createToken(user), routes : routesFound, userId: user.id});
                                 }
                             });
                         }else{
