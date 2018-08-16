@@ -5,6 +5,7 @@ html
     title GPS APP Telematica
     link(rel='stylesheet', type='text/css', href='/bower_components/bootstrap/dist/css/bootstrap.css') 
     script(src='/bower_components/bootstrap/dist/js/bootstrap.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.js')
     script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBmdhVJcwT22Ew26tMfpHIQTO1RJ2GjduE')
   body
     h1.display-4.m-b-2 Rutas Gps
@@ -41,10 +42,13 @@ html
     p#token(hidden) #{token}
     p#userId(hidden) #{userId}
     script(type='text/javascript').
-      var map;
-      var markers = [];
       var body = document.getElementsByTagName("body")[0];
       body.addEventListener("load", initMap(), false);
+      var map;
+      var markers = [];
+      var rutaFinalizada;
+      var timerGps;
+      var jsonResponseMessage;
       //-------------------------------------------------------------------------
       function initMap(){
         map = new google.maps.Map(document.getElementById('map'), {
@@ -70,39 +74,54 @@ html
         }
         showMarkers();
       }
-      //---------------------------------------------------------------------------
-      // Sets the map on all markers in the array.
+
       function setMapOnAll(map) {
         for (var i = 0; i < markers.length; i++) {
           markers[i].setMap(map);
         }
       }
-      //---------------------------------------------------------------------------
-      // Removes the markers from the map, but keeps them in the array.
+
       function clearMarkers() {
         setMapOnAll(null);
       }
-      //---------------------------------------------------------------------------
-      // Shows any markers currently in the array.
+
       function showMarkers() {
         setMapOnAll(map);
       }
-      //---------------------------------------------------------------------------
-      // Deletes all markers in the array by removing references to them.
+
       function deleteMarkers() {
         clearMarkers();
         markers = [];
       }
       //---------------------------------------------------------------------------
       function updateGps(option){
-        var time;
-        if(option == 'true'){
-          time = setInterval(function(){
-                    getPosition();
-                  }, 1000);  
+        if(option === 'true'){
+          var user = document.getElementById('userId').textContent;
+          var fecha = moment(new Date()).format("MM/DD/YYYY");
+          var jwtoken = document.getElementById('token').textContent;
+          var jsonRequestMessage = {
+            'fecha': fecha,
+            'user' : user
+          };
+          
+
+          var xmlHttpRequest = new XMLHttpRequest();
+          xmlHttpRequest.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              alert(this.responseText);
+            }
+          };
+          xmlHttpRequest.open("POST", "/api/route", true);
+          xmlHttpRequest.setRequestHeader("Content-type", "application/json");
+          xmlHttpRequest.setRequestHeader('Authorization', jwtoken);
+          xmlHttpRequest.send(JSON.stringify(jsonRequestMessage));
+
+          rutaFinalizada = false;
+          timerGps = setInterval(function(){ getPosition() }, 1000);  
         }else{
-          debugger;
-          clearInterval(time);
+          //debugger;
+          clearInterval(timerGps);
+          rutafinalizada = true;
           //false envía la ruta actualizada a la db
         }
       }
