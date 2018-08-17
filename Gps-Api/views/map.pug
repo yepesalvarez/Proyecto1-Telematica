@@ -44,11 +44,10 @@ html
     script(type='text/javascript').
       var body = document.getElementsByTagName("body")[0];
       body.addEventListener("load", initMap(), false);
-      var map;
+      var map, rutaBasevar, rutaFinalizada, timerGps, jsonRequestMessage, jsonResponseMessage, jwtoken, userId;
       var markers = [];
-      var rutaFinalizada;
-      var timerGps;
-      var jsonResponseMessage;
+      var positionsArray = [];
+      
       //-------------------------------------------------------------------------
       function initMap(){
         map = new google.maps.Map(document.getElementById('map'), {
@@ -56,6 +55,9 @@ html
         center: new google.maps.LatLng(6.2691, -75.5761),
         mapTypeId: google.maps.MapTypeId.ROADMAP
         });
+
+        userId = document.getElementById('userId').textContent;
+        jwtoken = document.getElementById('token').textContent;
       }
       //-------------------------------------------------------------------------
       function addMarkers(idRoute){
@@ -96,19 +98,18 @@ html
       //---------------------------------------------------------------------------
       function updateGps(option){
         if(option === 'true'){
-          var user = document.getElementById('userId').textContent;
+          positionsArray = [];
           var fecha = moment(new Date()).format("MM/DD/YYYY");
-          var jwtoken = document.getElementById('token').textContent;
-          var jsonRequestMessage = {
+          jsonRequestMessage = {
             'fecha': fecha,
-            'user' : user
+            'user' : userId
           };
           
-
           var xmlHttpRequest = new XMLHttpRequest();
           xmlHttpRequest.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
-              alert(this.responseText);
+              var obj = JSON.parse(this.responseText);
+              exportObject(obj);
             }
           };
           xmlHttpRequest.open("POST", "/api/route", true);
@@ -117,25 +118,46 @@ html
           xmlHttpRequest.send(JSON.stringify(jsonRequestMessage));
 
           rutaFinalizada = false;
+
           timerGps = setInterval(function(){ getPosition() }, 1000);  
         }else{
           //debugger;
-          clearInterval(timerGps);
+          clearInterval(timerGps);       
           rutafinalizada = true;
+          console.log(rutaBase);
           //false envía la ruta actualizada a la db
         }
       }
       
       function getPosition(){
         if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(showPosition);
+          navigator.geolocation.getCurrentPosition(savePosition);
         } else { 
           console.log("Geolocation is not supported by this browser.");
         }
       }
 
-      function showPosition(position) {
-        console.log("Lat: " + position.coords.latitude + "lng: " + position.coords.longitude);
+      function savePosition(position) {
+        console.log('pushiando ' + position.coords.latitude + ' , ' + position.coords.longitude);
+        positionsArray.push({lat: position.coords.latitude, lon: position.coords.longitude});
+        rutaBase['route']['points'] = positionsArray;
+
+        var xmlHttpRequest = new XMLHttpRequest();
+        xmlHttpRequest.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+            console.log(this.responseText);
+          }
+        };
+        xmlHttpRequest.open("PUT", "/api/route/" + rutaBase['route']['_id'], true);
+        xmlHttpRequest.setRequestHeader("Content-type", "application/json");
+        xmlHttpRequest.setRequestHeader('Authorization', jwtoken);
+        xmlHttpRequest.send(JSON.stringify(rutaBase));
+
+      }
+
+      //------------------------------------------------------------------------------------
+      function exportObject(obj){
+        rutaBase = obj;
       }
 
 

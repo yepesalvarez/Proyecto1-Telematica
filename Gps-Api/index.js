@@ -8,8 +8,8 @@ var port = process.env.PORT || 3000;
 mongoose.Promise = global.Promise;
 
 //Conexión con Bd
-//mongoose.connect('mongodb://mongo-server/gpsDb', function (err, res) {
-mongoose.connect('mongodb://localhost:27017/gpsDb', function (err, res) {
+mongoose.connect('mongodb://mongo-server/gpsDb', function (err, res) {
+//mongoose.connect('mongodb://localhost:27017/gpsDb', function (err, res) {
     if(err){
         throw err;
     }else{
