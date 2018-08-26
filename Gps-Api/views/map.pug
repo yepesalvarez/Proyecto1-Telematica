@@ -13,6 +13,10 @@ html
     table.table.table-borderless
       thead
         tr
+          label#minutes 
+          |
+          label#seconds 
+        tr
           th(scope='col') Mapa
           th(scope='col') Opciones
       tbody
@@ -22,14 +26,13 @@ html
           td
             div.btn-group-vertical
               button#iniciar.btn.btn-primary(onclick="updateGps('true')") Iniciar Ruta
-              button#avanzar.btn.btn-secundary Simular Avance
               button#finalizar.btn.btn-success(onclick="updateGps('false')") Finalizar Ruta
         tr
           td      
             div.btn-group-vertical  
               button.btn.btn-info Rutas guardadas:
                 span.badge= routes.length
-            ul.list-group
+            ul.list-group(style='width: 400px; height: 250px; overflow: auto')
               for route in routes
                 li.list-group-item= route.id
                   select(id = route.id multiple='' hidden)
@@ -38,15 +41,16 @@ html
                   button.btn.btn-success( onclick=`addMarkers(${JSON.stringify(route.id)})` ) Ver
             button.btn.btn-dark(onclick='/') Salir
     br
-    h6 #{message}
+    h6 #{message} 
     p#token(hidden) #{token}
     p#userId(hidden) #{userId}
     script(type='text/javascript').
       var body = document.getElementsByTagName("body")[0];
       body.addEventListener("load", initMap(), false);
-      var map, rutaBase, rutaFinalizada, timerGps, jsonRequestMessage, jwtoken, userId;
+      var map, rutaBase, timerGps, jsonRequestMessage, jwtoken, userId, minutesLabel, secondsLabel;
       var markers = [];
       var positionsArray = [];
+      var totalSeconds = 0;
       //-------------------------------------------------------------------------
       /* Función para instanciar un mapa de Google maps 
          con centro en la ciudad de Medellín, Colombia
@@ -111,6 +115,8 @@ html
       //---------------------------------------------------------------------------
       // Función para la gestión de rutas desde el front end
       function updateGps(option){
+          minutesLabel = document.getElementById("minutes");
+          secondsLabel = document.getElementById("seconds");
       // Si option es true es porque se inició una ruta, caso contrario porque se finalizó 
         if(option === 'true'){
           // Se inicializa vacío el arreglo de puntos para la nueva ruta iniciada
@@ -137,15 +143,12 @@ html
           xmlHttpRequest.setRequestHeader("Content-type", "application/json");
           xmlHttpRequest.setRequestHeader('Authorization', jwtoken);
           xmlHttpRequest.send(JSON.stringify(jsonRequestMessage));
-          // Se define la ruta creada como aún no finalizada
-          rutaFinalizada = false;
-          // Se establece un timer para que cada segundo guarde la posición gps del usuario
-          timerGps = setInterval(function(){ getPosition() }, 1000);  
+          // Se establece un timer para que cada segundo guarde la posición gps del usuario      
+          totalSeconds = 0;
+          timerGps = setInterval(function(){ getPosition(); setTime();  }, 1000);
         }else{
-          clearInterval(timerGps);       
-          rutafinalizada = true;
-          console.log(rutaBase);
-          //false envía la ruta actualizada a la db
+          // Se da stop el timer
+          clearInterval(timerGps);
         }
       }
       //-----------------------------------------------------------------------------------------
@@ -159,17 +162,12 @@ html
       }
       // Función para guardar la posición en el arreglo de posiciones
       function savePosition(position) {
-        console.log('pushiando ' + position.coords.latitude + ' , ' + position.coords.longitude);
+        //console.log('pushiando ' + position.coords.latitude + ' , ' + position.coords.longitude);
         positionsArray.push({lat: position.coords.latitude, lon: position.coords.longitude});
         // Se actualiza el arreglo de puntos cada vez
         rutaBase['route']['points'] = positionsArray;
         // Se construye request para actualizar la ruta en base de datos
         var xmlHttpRequest = new XMLHttpRequest();
-        xmlHttpRequest.onreadystatechange = function() {
-          if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-          }
-        };
         // se envía el request al endpoint de actualizar la ruta
         xmlHttpRequest.open("PUT", "/api/route/" + rutaBase['route']['_id'], true);
         xmlHttpRequest.setRequestHeader("Content-type", "application/json");
@@ -177,10 +175,29 @@ html
         xmlHttpRequest.send(JSON.stringify(rutaBase));
       }
       //------------------------------------------------------------------------------------
-      // Asigna el objeto a la variable global ruta base
+      // Función que asigna el objeto a la variable global ruta base
       function exportObject(obj){
         rutaBase = obj;
       }
+      //--------------------------------------------------------------------------------------------
+      /* Función para mostrar mensaje que indica al usuario que la ruta ya ha iniciado
+       * muestra el tiempo transcurrido de grabación de la ruta
+      */
+      function setTime() {
+        ++totalSeconds;
+        minutesLabel.innerHTML = pad('Tu recorrido esta siendo registrado. Tiempo transcurrido ' + parseInt(totalSeconds / 60) + ':');
+        secondsLabel.innerHTML = pad(totalSeconds % 60);
+      }
+      // Función para agregar un 0 a la izquierda en el reloj cuando el dígito es menor a 10
+      function pad(val) {
+        var valString = val + "";
+        if (valString.length < 2) {
+          return "0" + valString;
+        } else {
+          return valString;
+        }
+      }
+
 
 
 
