@@ -44,11 +44,13 @@ html
     script(type='text/javascript').
       var body = document.getElementsByTagName("body")[0];
       body.addEventListener("load", initMap(), false);
-      var map, rutaBasevar, rutaFinalizada, timerGps, jsonRequestMessage, jsonResponseMessage, jwtoken, userId;
+      var map, rutaBase, rutaFinalizada, timerGps, jsonRequestMessage, jwtoken, userId;
       var markers = [];
       var positionsArray = [];
-      
       //-------------------------------------------------------------------------
+      /* Función para instanciar un mapa de Google maps 
+         con centro en la ciudad de Medellín, Colombia
+      */
       function initMap(){
         map = new google.maps.Map(document.getElementById('map'), {
         zoom: 12,
@@ -60,8 +62,15 @@ html
         jwtoken = document.getElementById('token').textContent;
       }
       //-------------------------------------------------------------------------
+      // Funcion para pintar marcadores de rutas
       function addMarkers(idRoute){
+        // Se eliminan primero posibles marcadores que estén pintados en el mapa
         deleteMarkers();
+        /* Se obtiene el elemento html(select) que contiene el objeto ruta junto a
+         sus puntos gps guardados (options del select). 
+         Se crean marcadores de google según cada punto gps y se guardan en el arreglo
+         respectivo.
+        */
         var i;
         var markersArray = document.getElementById(idRoute);
         for (i = 0 ; i < markersArray.length ; i++){
@@ -74,61 +83,73 @@ html
             });
           markers.push(marker);
         }
+        // Se muestran los marcadores en el mapa
         showMarkers();
       }
-
+        /* Configura a los marcadores que estan actualmente en el arreglo (variable global)
+        *   un mapa recibido. 
+        *  Por tanto, si se recibe como null el mapa, los retira del mapa actual
+        */ 
       function setMapOnAll(map) {
         for (var i = 0; i < markers.length; i++) {
           markers[i].setMap(map);
         }
       }
-
+      // Le dice al mapa que no configure elementos sobre él
       function clearMarkers() {
         setMapOnAll(null);
       }
-
+      // Le dice al mapa que muestre los elementos como estan a momento
       function showMarkers() {
         setMapOnAll(map);
       }
-
+      // Limpia el mapa y el arreglo de marcadores
       function deleteMarkers() {
         clearMarkers();
         markers = [];
       }
       //---------------------------------------------------------------------------
+      // Función para la gestión de rutas desde el front end
       function updateGps(option){
+      // Si option es true es porque se inició una ruta, caso contrario porque se finalizó 
         if(option === 'true'){
+          // Se inicializa vacío el arreglo de puntos para la nueva ruta iniciada
           positionsArray = [];
+          // Se construye json base para enviarse al endpoint de crear ruta
           var fecha = moment(new Date()).format("MM/DD/YYYY");
           jsonRequestMessage = {
             'fecha': fecha,
             'user' : userId
           };
-          
+          // Se construye request
           var xmlHttpRequest = new XMLHttpRequest();
           xmlHttpRequest.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
               var obj = JSON.parse(this.responseText);
+              /* El json que se obtendrá en el response es la ruta creada en la bd sin puntos (ruta vacía)
+               * Se guarda esta ruta para modificarse posteriormente con los puntos que se capturen
+              */
               exportObject(obj);
             }
           };
+          // Se envía el request asociándosele el token de seguridad
           xmlHttpRequest.open("POST", "/api/route", true);
           xmlHttpRequest.setRequestHeader("Content-type", "application/json");
           xmlHttpRequest.setRequestHeader('Authorization', jwtoken);
           xmlHttpRequest.send(JSON.stringify(jsonRequestMessage));
-
+          // Se define la ruta creada como aún no finalizada
           rutaFinalizada = false;
-
+          // Se establece un timer para que cada segundo guarde la posición gps del usuario
           timerGps = setInterval(function(){ getPosition() }, 1000);  
         }else{
-          //debugger;
           clearInterval(timerGps);       
           rutafinalizada = true;
           console.log(rutaBase);
           //false envía la ruta actualizada a la db
         }
       }
-      
+      //-----------------------------------------------------------------------------------------
+      // Función para obtener la posición del usaurio y llamar a que esta sea guardada
       function getPosition(){
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(savePosition);
@@ -136,26 +157,27 @@ html
           console.log("Geolocation is not supported by this browser.");
         }
       }
-
+      // Función para guardar la posición en el arreglo de posiciones
       function savePosition(position) {
         console.log('pushiando ' + position.coords.latitude + ' , ' + position.coords.longitude);
         positionsArray.push({lat: position.coords.latitude, lon: position.coords.longitude});
+        // Se actualiza el arreglo de puntos cada vez
         rutaBase['route']['points'] = positionsArray;
-
+        // Se construye request para actualizar la ruta en base de datos
         var xmlHttpRequest = new XMLHttpRequest();
         xmlHttpRequest.onreadystatechange = function() {
           if (this.readyState == 4 && this.status == 200) {
             console.log(this.responseText);
           }
         };
+        // se envía el request al endpoint de actualizar la ruta
         xmlHttpRequest.open("PUT", "/api/route/" + rutaBase['route']['_id'], true);
         xmlHttpRequest.setRequestHeader("Content-type", "application/json");
         xmlHttpRequest.setRequestHeader('Authorization', jwtoken);
         xmlHttpRequest.send(JSON.stringify(rutaBase));
-
       }
-
       //------------------------------------------------------------------------------------
+      // Asigna el objeto a la variable global ruta base
       function exportObject(obj){
         rutaBase = obj;
       }
