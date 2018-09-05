@@ -18,17 +18,17 @@ function getRouteById(req, res){
 
 /*-----------------------------------------------------------------------------------------------------------------*/
 
-function getRoutesByUser(user){
-    Route.find({user:user}, function(err,routes){
+function getRoutesByUser(req, res){
+    var userId = req.params.userId;
+    Route.find({user:userId}, function(err,routes){
         if(err){
             console.log(err);
-            return err;
+            res.status(500).send({message: err});
         }else{
-            console.log(routes);
-            return routes;
+            //console.log(routes);
+            res.status(200).send({routes});
         }
     });
-    return [];
 }
 
 /*-----------------------------------------------------------------------------------------------------------------*/
