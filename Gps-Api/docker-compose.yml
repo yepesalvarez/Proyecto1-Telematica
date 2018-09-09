@@ -6,6 +6,7 @@ services:
     volumes:
  #    - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./assets/.well-known/acme-challenge:/usr/share/nginx/html
       - ./ssl:/etc/nginx/ssl
     ports:
       - "80:80"
