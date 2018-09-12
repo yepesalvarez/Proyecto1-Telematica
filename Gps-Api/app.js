@@ -39,7 +39,7 @@ var strategy = new Auth0Strategy({
   domain: 'yepes.auth0.com',
   clientID: '10Cp5KmJ6KbOxwkD546WGbcLUG0H98Du',
   clientSecret: '9AkBSmkKNvoTFAdWh01YDVVS1gPocsMLg9eqcpu-9IbDYvy4o5hM9B-awLcsXU3t', // Replace this with the client secret for your app
-  callbackURL: 'https://www.proyecto2st0263eafit.tk/user'
+  callbackURL: 'http://proyecto2st0263eafit.tk/callback'
  },
  function(accessToken, refreshToken, extraParams, profile, done) {
    // accessToken is the token to call Auth0 API (not needed in the most cases)
