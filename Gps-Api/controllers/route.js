@@ -20,7 +20,7 @@ function getRouteById(req, res){
 
 function getRoutesByUser(req, res){
     var userId = req.params.userId;
-    Route.find({user:userId}, function(err,routes){
+    Route.find({userAuth0:userId}, function(err,routes){
         if(err){
             console.log(err);
             res.status(500).send({message: err});
@@ -41,7 +41,7 @@ function saveRoute(req, res){
         res.status(400).send({message : 'parámetros incompletos'})
     }else{
         route.fecha = params.fecha;
-        route.user = params.user;
+        route.userAuth0 = params.user;
         route.save(function(err, routeStored){
             if(err){
                 res.status(500).send({message: 'Error al procesar la solicitud'});

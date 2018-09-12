@@ -9,6 +9,7 @@ html
     script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyBmdhVJcwT22Ew26tMfpHIQTO1RJ2GjduE')
   body
     h1.display-4.m-b-2 Rutas Gps
+    p Bienvenido #{user.nickname}!
     hr
     table.table.table-borderless
       thead
@@ -39,7 +40,7 @@ html
                     for point in route.points
                       option= [point.lat,point.lon]
                   button.btn.btn-success( onclick=`addMarkers(${JSON.stringify(route.id)})` ) Ver
-            button.btn.btn-dark(onclick='/') Salir
+            button.btn.btn-dark(onclick="location.href='/logout'") Salir
     br
     h6 #{message} 
     p#token(hidden) #{token}
@@ -163,7 +164,6 @@ html
       }
       // Función para guardar la posición en el arreglo de posiciones
       function savePosition(position) {
-        //console.log('pushiando ' + position.coords.latitude + ' , ' + position.coords.longitude);
         positionsArray.push({lat: position.coords.latitude, lon: position.coords.longitude});
         // Se actualiza el arreglo de puntos cada vez
         rutaBase['route']['points'] = positionsArray;

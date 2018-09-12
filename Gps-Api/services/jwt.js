@@ -7,7 +7,7 @@ var secret = 'st0263_topicos_telematica';
 
 exports.createToken = function(user){
     var payload = {
-        sub: user._id,
+        sub: user.id,
         username: user.username,
         //fecha de creación del token
         iat: moment().unix(),

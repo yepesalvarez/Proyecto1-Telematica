@@ -5,6 +5,7 @@ var schema = mongoose.Schema;
 
 var routeSchema = schema({
     fecha: String,
+    userAuth0 : String,
     points: [{ lat : Number, lon : Number}],
     user: {type: schema.ObjectId, ref : 'User'}
 });
