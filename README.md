@@ -1,4 +1,4 @@
-# Proyecto1-Telematica
+# Proyecto1-Telematica - Proyecto2 Seguridad
 Proyecto académico de la universidad EAFIT. Asignatura Tópicos Especiales en Telemática. Sistema de registro de rutas GPS
 
 # Ver Proyecto en AWS
